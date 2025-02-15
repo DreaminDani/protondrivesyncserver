@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -41,31 +41,24 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. Decode JSON request
-	var uploadRequest UploadRequest
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&uploadRequest); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload: "+err.Error())
+	// Get filename from URL query parameter or use a default name
+	filename := r.URL.Query().Get("filename")
+	if filename == "" {
+		filename = fmt.Sprintf("upload_%s.bin", time.Now().Format("20060102_150405"))
+	}
+
+	// Read the raw POST body (the file content)
+	fileData, err := io.ReadAll(r.Body)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Failed to read file: "+err.Error())
 		return
 	}
 	defer r.Body.Close()
 
-	if uploadRequest.Filename == "" || uploadRequest.Base64Document == "" {
-		respondWithError(w, http.StatusBadRequest, "Filename and base64Document are required")
-		return
-	}
-
-	// 2. Decode base64 document
-	decodedDocument, err := base64.StdEncoding.DecodeString(uploadRequest.Base64Document)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid base64 document: "+err.Error())
-		return
-	}
-
-	// 3. Retrieve credentials from environment variables
+	// Rest of the ProtonDrive setup...
 	protonUsername := os.Getenv("PROTON_USERNAME")
 	protonPassword := os.Getenv("PROTON_PASSWORD")
-	targetFolderID := os.Getenv("PROTON_DRIVE_FOLDER_ID") // Optional folder ID
+	targetFolderID := os.Getenv("PROTON_DRIVE_FOLDER_ID")
 
 	if protonUsername == "" || protonPassword == "" {
 		respondWithError(w, http.StatusInternalServerError, "Proton Drive credentials not configured")
@@ -73,16 +66,12 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-
-	// Create config
 	config := protonapi.NewDefaultConfig()
-
-	// Initialize ProtonDrive
 	protonDrive, _, err := protonapi.NewProtonDrive(
 		ctx,
 		config,
-		nil, // authHandler
-		nil, // deAuthHandler
+		nil,
+		nil,
 	)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to initialize Proton Drive: "+err.Error())
@@ -90,21 +79,20 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer protonDrive.Logout(ctx)
 
-	// Upload the file using reader
+	// Upload the file
 	fileID, _, err := protonDrive.UploadFileByReader(
 		ctx,
 		targetFolderID,
-		uploadRequest.Filename,
+		filename,
 		time.Now(),
-		bytes.NewReader(decodedDocument),
-		0, // testParam
+		bytes.NewReader(fileData),
+		0,
 	)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to upload file: "+err.Error())
 		return
 	}
 
-	// 5. Respond with success
 	respondWithJSON(w, http.StatusOK, Response{
 		Success: true,
 		Message: "File uploaded successfully to Proton Drive",

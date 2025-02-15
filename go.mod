@@ -23,6 +23,7 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/henrybear327/go-proton-api v0.0.0-20230907193451-e563407504ce // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/relvacode/iso8601 v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect

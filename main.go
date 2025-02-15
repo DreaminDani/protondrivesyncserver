@@ -68,7 +68,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 	config := common.NewConfigWithDefaultValues()
-	config.AppVersion = "web-drive@5.2.0+95291931"
+	config.AppVersion = "macos-drive@1.0.0-alpha.1+rclone"
 
 	credentials := &common.FirstLoginCredentialData{
 		Username: protonUsername,

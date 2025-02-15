@@ -45,7 +45,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	// Get filename from URL query parameter or use a default name
 	filename := r.URL.Query().Get("filename")
 	if filename == "" {
-		filename = fmt.Sprintf("upload_%s.bin", time.Now().Format("20060102_150405"))
+		filename = fmt.Sprintf("upload_%s.txt", time.Now().Format("20060102_150405"))
 	} else {
 		// Append timestamp before the file extension
 		ext := ""

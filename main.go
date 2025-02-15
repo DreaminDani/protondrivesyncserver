@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -52,6 +53,15 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Received file data of size: %d bytes", len(fileData))
 
+	// Decode base64 content
+	decodedData, err := base64.StdEncoding.DecodeString(string(fileData))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Failed to decode base64 content: "+err.Error())
+		return
+	}
+
+	log.Printf("Decoded data size: %d bytes", len(decodedData))
+
 	// Generate filename with timestamp
 	filename := fmt.Sprintf("upload_%s.txt", time.Now().Format("20060102_150405"))
 
@@ -93,7 +103,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		targetFolderID,
 		filename,
 		time.Now(),
-		bytes.NewReader(fileData),
+		bytes.NewReader(decodedData),
 		0,
 	)
 	if err != nil {

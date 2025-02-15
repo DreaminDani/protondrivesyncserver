@@ -88,8 +88,9 @@ Look for your local IP (usually starts with 192.168.x.x or 10.0.x.x)
 
 By default, the server listens on all network interfaces (0.0.0.0). Other devices on the same network can access it using:
 
-```
-http://<your-server-ip>:<port>/upload
+```bash
+go run main.go
+# POST to http://<your-server-ip>:<port>/upload
 ```
 
 Example: `http://192.168.1.100:8080/upload`
@@ -134,20 +135,8 @@ JSON response with:
 }
 ```
 
-### Example Using cURL
+### Testing Using cURL
 
 ```bash
-curl -X POST "http://localhost:8080/upload" --data-binary @example.txt
-```
-
-### Example Using C++ HTTPClient
-
-```cpp
-HTTPClient http;
-http.begin("http://server:8080/upload");
-http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
-
-File file = SD.open(filename, FILE_READ);
-http.sendRequest("POST", &file, file.size());
-http.end();
+curl -X POST "http://localhost:8080/upload" --data-binary @example.base64
 ```

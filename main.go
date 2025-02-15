@@ -42,29 +42,18 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get filename from URL query parameter or use a default name
-	filename := r.URL.Query().Get("filename")
-	if filename == "" {
-		filename = fmt.Sprintf("upload_%s.txt", time.Now().Format("20060102_150405"))
-	} else {
-		// Append timestamp before the file extension
-		ext := ""
-		if dotIndex := len(filename) - 1; dotIndex >= 0 {
-			if lastDot := bytes.LastIndexByte([]byte(filename), '.'); lastDot != -1 {
-				ext = filename[lastDot:]
-				filename = filename[:lastDot]
-			}
-		}
-		filename = fmt.Sprintf("%s_%s%s", filename, time.Now().Format("20060102_150405"), ext)
-	}
-
-	// Read the raw POST body (the file content)
+	// Read the raw file data from the request body
 	fileData, err := io.ReadAll(r.Body)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Failed to read file: "+err.Error())
+		respondWithError(w, http.StatusBadRequest, "Failed to read request body: "+err.Error())
 		return
 	}
 	defer r.Body.Close()
+
+	log.Printf("Received file data of size: %d bytes", len(fileData))
+
+	// Generate filename with timestamp
+	filename := fmt.Sprintf("upload_%s.txt", time.Now().Format("20060102_150405"))
 
 	// Rest of the ProtonDrive setup...
 	protonUsername := os.Getenv("PROTON_USERNAME")
@@ -112,6 +101,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Successfully uploaded file '%s' with ID: %s", filename, fileID)
 	respondWithJSON(w, http.StatusOK, Response{
 		Success: true,
 		Message: "File uploaded successfully to Proton Drive",

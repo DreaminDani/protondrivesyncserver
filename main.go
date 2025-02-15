@@ -12,6 +12,7 @@ import (
 	"time"
 
 	protonapi "github.com/henrybear327/Proton-API-Bridge"
+	"github.com/henrybear327/Proton-API-Bridge/common"
 )
 
 // UploadRequest defines the structure for the incoming JSON request
@@ -66,11 +67,19 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	config := protonapi.NewDefaultConfig()
+	config := common.NewConfigWithDefaultValues()
+	config.AppVersion = "web-drive@5.2.0+95291931"
+
+	credentials := &common.FirstLoginCredentialData{
+		Username: protonUsername,
+		Password: protonPassword,
+	}
+	config.FirstLoginCredential = credentials
+
 	protonDrive, _, err := protonapi.NewProtonDrive(
 		ctx,
 		config,
-		nil,
+		nil, // authHandler not needed when using FirstLoginCredential
 		nil,
 	)
 	if err != nil {

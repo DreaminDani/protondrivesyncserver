@@ -1,5 +1,59 @@
 # ProtonDrive Upload Server Usage Instructions
 
+## Prerequisites
+
+### Installing Go
+
+1. **Download Go**
+
+   - Visit the official Go downloads page: https://go.dev/dl/
+   - Choose the appropriate version for your operating system
+
+2. **Installation Steps**
+
+   **For Windows:**
+
+   - Run the downloaded MSI installer
+   - Follow the installation wizard
+   - Go will be installed to `C:\Go` by default
+
+   **For Mac:**
+
+   - Using Homebrew (recommended):
+     ```bash
+     brew install go
+     ```
+   - Or use the downloaded pkg installer
+
+   **For Linux:**
+
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install golang-go
+
+   # Fedora
+   sudo dnf install golang
+
+   # From downloaded archive
+   wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+   sudo rm -rf /usr/local/go
+   sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+   ```
+
+3. **Verify Installation**
+
+   ```bash
+   go version
+   ```
+
+4. **Set up GOPATH** (if not using default)
+   Add to your shell profile (~/.bashrc, ~/.zshrc, etc.):
+   ```bash
+   export GOPATH=$HOME/go
+   export PATH=$PATH:$GOPATH/bin
+   ```
+
 ## Environment Variables
 
 Required:
@@ -8,6 +62,13 @@ Required:
 - `PROTON_PASSWORD`: Your Proton account password
 - `PROTON_DRIVE_FOLDER_ID`: Target folder ID in Proton Drive (you can get this from the URL of the folder in Proton Drive)
 - `PORT`: Server port (defaults to 8080 if not set)
+
+```bash
+export PROTON_USERNAME="your_proton_username"
+export PROTON_PASSWORD="your_proton_password"
+export PROTON_DRIVE_FOLDER_ID="your_drive_folder_id"
+export PORT="8080"
+```
 
 ## Network Access Setup
 

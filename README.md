@@ -137,15 +137,14 @@ JSON response with:
 ### Example Using cURL
 
 ```bash
-curl -X POST "http://localhost:8080/upload?filename=test.txt" \
-     --data-binary @/path/to/your/file.txt
+curl -X POST "http://localhost:8080/upload" --data-binary @example.txt
 ```
 
 ### Example Using C++ HTTPClient
 
 ```cpp
 HTTPClient http;
-http.begin("http://server:8080/upload?filename=myfile.txt");
+http.begin("http://server:8080/upload");
 http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
 
 File file = SD.open(filename, FILE_READ);

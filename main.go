@@ -46,6 +46,16 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	filename := r.URL.Query().Get("filename")
 	if filename == "" {
 		filename = fmt.Sprintf("upload_%s.bin", time.Now().Format("20060102_150405"))
+	} else {
+		// Append timestamp before the file extension
+		ext := ""
+		if dotIndex := len(filename) - 1; dotIndex >= 0 {
+			if lastDot := bytes.LastIndexByte([]byte(filename), '.'); lastDot != -1 {
+				ext = filename[lastDot:]
+				filename = filename[:lastDot]
+			}
+		}
+		filename = fmt.Sprintf("%s_%s%s", filename, time.Now().Format("20060102_150405"), ext)
 	}
 
 	// Read the raw POST body (the file content)
